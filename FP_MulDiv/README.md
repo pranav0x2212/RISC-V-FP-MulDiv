@@ -56,22 +56,9 @@ module fp_muldiv (
 * **Divide.** `x / 0` (x finite non-zero or infinity) = infinity with the XOR sign; `0 / 0` and `inf / inf` are invalid (NaN);
   `finite / inf` = signed zero; `0 / finite` = signed zero; `inf / finite` = infinity.
 
-### What is checked
+### What the CI checks
 
-About 15,000 operations: every pair of 24 corner values (zeros, subnormals, min/max normal, infinities, NaNs) with both operations,
-then constrained-random operands (random bit patterns, mid-range exponents, subnormal operands, overflow and underflow ranges, short
-mantissas giving exact results, equal operands, powers of two, results near the subnormal boundary). Every result must match bit for bit.
-
-### Hints
-
-* Multiply: the product of two 24-bit significands is 48 bits; keep guard/round/sticky bits and normalise with a leading-one search.
-* Divide: normalise subnormal operands first (shift the significand up, lower the exponent), produce at least 26 quotient bits and
-  use the non-zero remainder as a sticky bit. An iterative (restoring / non-restoring) divider is fine: it just takes more cycles.
-* A rounding carry (`1.111...1` becoming `10.000...0`) increments the exponent and can overflow to infinity; a result below the
-  smallest normal must be rounded at the **subnormal** position, not at 24 bits.
-* Yosys 0.33 (the CI synthesizer) cannot parse assignment patterns (`'{default: 0}`), and `small` is a reserved word.
-
-### Interface
+CI runs about 15,000 operations (corner cases and constrained-random operands) and compares every result bit for bit.
 
 > [!IMPORTANT]
-> Your module, port and parameter names are up to you. Your design must have the same number of ports, with the same directions and widths, as shown above, and must behave as specified. Map your names to this spec in `rnr-stage.yaml` (see the assignment handout).
+> Your module and port names are up to you, but the port count, directions, widths and behavior must match this spec. If your names differ, map them in `rnr-stage.yaml`.
